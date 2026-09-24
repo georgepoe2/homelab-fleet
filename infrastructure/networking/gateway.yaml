@@ -1,0 +1,27 @@
+---
+# A shared Gateway. Routes live with their applications, in their own
+# namespaces, and attach to this listener.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gateway
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: rookery
+  namespace: gateway
+spec:
+  # Cilium only programs Gateways with this class, and the GatewayClass must
+  # be named exactly "cilium".
+  gatewayClassName: cilium
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        # A shared Gateway: applications in any namespace may attach a route.
+        # The alternative is a ReferenceGrant per namespace, which is stricter
+        # than this cluster needs while it has one owner.
+        namespaces:
+          from: All

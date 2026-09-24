@@ -1,0 +1,89 @@
+---
+# Throwaway app, here to prove the whole path works: DNS -> ARP -> eBPF ->
+# Envoy -> HTTPRoute -> pod. Delete it once something real is deployed.
+#
+# Note there is NO Pod Security exemption on this namespace. The CIS profile
+# enforces restricted cluster-wide, and this pod simply complies: non-root,
+# no privilege escalation, all capabilities dropped, read-only root, seccomp.
+# Writing compliant workloads is preferable to labelling namespaces.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whoami
+  namespace: demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: whoami
+  template:
+    metadata:
+      labels:
+        app: whoami
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: whoami
+          image: traefik/whoami:v1.11
+          # Port above 1024 because the process is not root.
+          args: ["--port", "8080"]
+          ports:
+            - name: http
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami
+  namespace: demo
+spec:
+  selector:
+    app: whoami
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+# The route attaches to the Gateway in the other namespace. Permitted because
+# that listener sets allowedRoutes.namespaces.from: All.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: whoami
+  namespace: demo
+spec:
+  parentRefs:
+    - name: rookery
+      namespace: gateway
+      sectionName: http
+  hostnames:
+    - "whoami.rookery.internal"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: whoami
+          port: 80

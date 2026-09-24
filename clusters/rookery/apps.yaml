@@ -1,0 +1,24 @@
+---
+# Applications. Depends on infra-networking, so Flux will not try to attach an
+# HTTPRoute to a Gateway that does not exist yet.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: apps
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: infra-networking
+  interval: 10m
+  retryInterval: 1m
+  timeout: 5m
+  path: ./apps
+  prune: true
+  wait: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
