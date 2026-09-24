@@ -1,18 +1,26 @@
 ---
 # Step 1 of ADR-002's obligation: default-deny, and nothing else.
 #
-# Written with enableDefaultDeny rather than an empty rule list. Cilium's
-# schema says an ingress rule "If omitted or empty ... does not apply at
-# ingress", and an empty IngressRule's members "have no effect" - so
-# `ingress: [{}]` is ambiguous at best and permissive at worst. This field
-# exists precisely to say the thing outright.
+# Three attempts at expressing this, recorded because the reasoning matters:
 #
-# Note also that Cilium's implicit behaviour is per-direction: a policy with
-# only ingress rules default-denies ingress and leaves egress open. Both are
-# named here so neither depends on an implication.
+#   1. `ingress: [{}]` - an empty rule. In Kubernetes NetworkPolicy that means
+#      "allow from anywhere", and Cilium's schema says an empty member "has no
+#      effect on the rule". Ambiguous at best, permissive at worst.
 #
-# Selection is by IDENTITY (labels), not IP, so this survives pod churn -
-# which is the substance of ADR-002's "more enforceable" claim.
+#   2. `enableDefaultDeny` alone, with no rules. Rejected by the CRD's own
+#      OpenAPI validation: "spec must validate at least one schema (anyOf),
+#      spec.ingress: Required value". A policy must carry rules to be valid.
+#
+#   3. This: rules that select the `none` entity. Cilium's entity list is
+#      world, cluster, host, remote-node, kube-apiserver, ingress, init,
+#      health, unmanaged, none, all. `none` matches nothing, so the presence
+#      of the rule switches enforcement on while permitting no traffic.
+#
+# Having rules in both directions also means Cilium's per-direction default
+# deny applies to both, without relying on an implication.
+#
+# Selection is by IDENTITY (labels), not IP, so this survives pod churn, which
+# is the substance of ADR-002's "more enforceable" claim.
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -20,6 +28,9 @@ metadata:
   namespace: demo
 spec:
   endpointSelector: {}
-  enableDefaultDeny:
-    ingress: true
-    egress: true
+  ingress:
+    - fromEntities:
+        - none
+  egress:
+    - toEntities:
+        - none
