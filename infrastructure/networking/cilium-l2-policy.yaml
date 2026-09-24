@@ -1,0 +1,25 @@
+---
+# Makes a node answer ARP for the LoadBalancer address, so the LAN can find it.
+# Without this the pool hands out an IP that nothing on the network can reach.
+#
+# Still v2alpha1 in Cilium 1.19 - unlike the IP pool above, which is v2.
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: rookery-lan
+spec:
+  # LoadBalancer IPs only. Service.externalIPs is a different mechanism and
+  # nothing here uses it.
+  loadBalancerIPs: true
+  externalIPs: false
+
+  interfaces:
+    - ^eth[0-9]+$
+
+  # Workers only. The control planes are tainted CriticalAddonsOnly and should
+  # not be carrying ingress traffic; keeping announcement off them means LAN
+  # traffic never arrives at a node whose job is running etcd.
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: DoesNotExist

@@ -1,0 +1,22 @@
+---
+# Replaces MetalLB's IPAddressPool (ADR-003). Cilium hands out LoadBalancer
+# addresses itself; the CNI agent is already on the wire.
+#
+# API version matters: Cilium 1.19 serves this CRD at v2 (v2alpha1 is still
+# served but deprecated), and the field is `blocks` - older guides say `cidrs`.
+apiVersion: cilium.io/v2
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: rookery-lan
+spec:
+  blocks:
+    # A single address, expressed as a range rather than 192.168.1.235/32:
+    # a /32 raises the allowFirstLastIPs question for no reason.
+    #
+    # Deliberately exactly one address. AdGuard points application names at
+    # .235, so the Gateway must land there - and with one address in the pool
+    # that is guaranteed rather than merely likely. A second LoadBalancer
+    # Service will sit Pending, visibly, which is the failure I want.
+    # Widening this is a one-line change.
+    - start: "192.168.1.235"
+      stop: "192.168.1.235"

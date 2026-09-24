@@ -1,0 +1,24 @@
+---
+# Everything under infrastructure/networking is applied by Flux.
+# Split from apps deliberately: infrastructure must be healthy before
+# anything that depends on it, and prune must be safe to leave on.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-networking
+  namespace: flux-system
+spec:
+  interval: 10m
+  retryInterval: 1m
+  timeout: 5m
+  path: ./infrastructure/networking
+  prune: true
+  wait: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  # Present from the start so the first encrypted file needs no change here.
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
