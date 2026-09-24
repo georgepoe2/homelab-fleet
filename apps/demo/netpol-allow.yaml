@@ -1,0 +1,31 @@
+---
+# Step 2: the one thing that is permitted.
+#
+# Kept separate from default-deny on purpose. The deny is generic and applies
+# to the whole namespace; allows are per-workload and should be readable on
+# their own. Adding a second app means adding a policy, not editing the deny.
+#
+# `fromEntities: ingress` is Cilium's reserved identity for its own Gateway /
+# Ingress Envoy proxy. This is the reason to use identities rather than CIDRs:
+# the proxy's address is a pod IP on whichever node answered ARP, and it
+# changes. Hubble showed the denied traffic as
+#   10.42.6.99 (ingress) -> demo/whoami ... Policy denied DROPPED
+# so the identity is what the datapath actually sees.
+#
+# Egress remains denied. whoami serves requests and originates nothing.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-gateway-to-whoami
+  namespace: demo
+spec:
+  endpointSelector:
+    matchLabels:
+      app: whoami
+  ingress:
+    - fromEntities:
+        - ingress
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
