@@ -1,0 +1,25 @@
+---
+# Step 1 of ADR-002's obligation: default-deny, and nothing else.
+#
+# Written with enableDefaultDeny rather than an empty rule list. Cilium's
+# schema says an ingress rule "If omitted or empty ... does not apply at
+# ingress", and an empty IngressRule's members "have no effect" - so
+# `ingress: [{}]` is ambiguous at best and permissive at worst. This field
+# exists precisely to say the thing outright.
+#
+# Note also that Cilium's implicit behaviour is per-direction: a policy with
+# only ingress rules default-denies ingress and leaves egress open. Both are
+# named here so neither depends on an implication.
+#
+# Selection is by IDENTITY (labels), not IP, so this survives pod churn -
+# which is the substance of ADR-002's "more enforceable" claim.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: default-deny
+  namespace: demo
+spec:
+  endpointSelector: {}
+  enableDefaultDeny:
+    ingress: true
+    egress: true
