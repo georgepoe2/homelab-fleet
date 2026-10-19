@@ -21,8 +21,10 @@ metadata:
 spec:
   interval: 1h
   url: https://github.com/SynologyOpenSource/synology-csi
+  # v1.4.0 is tagged on GitHub but its image was never published to Docker Hub
+  # (newest image: v1.3.1, checked 2026-10-19). Chart and image must match.
   ref:
-    tag: v1.4.0
+    tag: v1.3.1
   ignore: |
     /*
     !/deploy/helm/
