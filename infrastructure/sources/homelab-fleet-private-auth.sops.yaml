@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: homelab-fleet-private-auth
+    namespace: flux-system
+stringData:
+    identity: ENC[AES256_GCM,data:tsuO9oUeMJeWiZtX+r1KscdRgChSQR+fB+btfG1R2O2zjWMFP5qQdsHfaRORFUzb0HCGqF4z8PmeVczwtXOMTE/Dq+aF6VyQBx8nvV01iz1DDzh9SqVsxsDVB7j3eytLb2nDsYcmXYLZobhb4aLSKtBoFaUd0IC/eRefJkCoNlakoozt7DxC5nQrwjDs/2nVRGvH4Iyq0jGMlSANfOUVGemy9byIIq7JtY4QZSNBP5BlYs3ivvg1vQhJUTITO89XjC7PMJdSTxFwOwjvR1U8dty2W4M0gnwSReZ6H+CbddZZ1L0E0NTYlmV4d287Kbt9M1BWN6UZ97V+ANXEBxQ8ekzoPY5OuyXQiu/q2aT4FxZhLS1mvKz6vILugg9hP+SeIt16/VkrdTkuWRQbSMVW9gMB,iv:MbXcC9/lg565+ep16mL2b3d1usxCJCLNNjF4Y521sU8=,tag:adwXJnL0fM9aw7M7cA61JQ==,type:str]
+    identity.pub: ENC[AES256_GCM,data:nvqiuijycT7vn73g/cpuupDvls5xWypdxJ1C8j8axKnGVlqWkV10IGzLJaV5xNWo6GXwO+M2Oa2/m1L+ILd3tvPBmUGI4y1jK6/mDODDKZXx6pw1UAzFfhbqbs7QpeKMjVZI2UHbUvkFCWQ6hOYVpjhHd2FZWhkufslIUR+fzidpKbBSZXAa2j3N51/NN03BRBSPK1WNA3QNNMkMPlGmemUW2Mj9b5y1+edmT8+rafaTnnevDHOOdnV1fj9N6GYK7gNT4v7otyEbp6z+aA==,iv:SXVdn29WCPyrpzwm6PmG281W67JxwbwXf/Ro6JAK3cE=,tag:aDOnDOfXFFzC0vaQgl4I/A==,type:str]
+    known_hosts: ENC[AES256_GCM,data:8gI+Fbc/QntURUj5LmQkEazDPki1e7PjAwuBqxiwjOnk9OKCBwJAtDMl7mQFm4A94MsyzokI4zGe3C3vjWwZXZuUZn4QDBBjXCRjLqotUPhYWmUu3NNHi8uxFu5Z5KaxZLlH289A2ZRV5CMrJLcOUVOPzoA64u1mHwuzng/l9nfpxXA2zKiIPDG102qBzJFTlZBs0A5glcKoFEK7jJ+4Wce5oHxOGm5jrq+4,iv:2JniGcssNvwcdj/Sg//npcgFobNih0flihRGjizPkrM=,tag:wvLTdq6hLt6rv6O3bny6vg==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAwRUtVRFpQVUlROEdISDBy
+            d1BFOGRINVl2SkdnZUR6cm15WlhPUGp0YW1RCnNMZWJuSWpjSEtjbFhBZHpBZk95
+            V3oyY3dQL0NGaWtCUm13czl1dmErU00KLS0tIE1UK05PSmk2a2ZJbkJTdzhzbmw5
+            Y0c3VC9tU1RkbUpyUmdYWmhtajRmRjAKtNBgH0rSmPOsGD+R+tq/7k8ZYe/FW0Jf
+            WKGC57NAHqC0MD8tllrLC8CW7Ej68L3SxVhgJBgzrNFVovuYZH+aTg==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1kr0vn2a7n42xpneeqfc7jsxngwmvr6gh7uyse80904kgldqzlersnwc5s4
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-19T19:38:16Z"
+    mac: ENC[AES256_GCM,data:rO/JfVL1VIlMfhDRbxOKMqZpi41cIDb/3Q8OG/7r4drsRLNGfVodkGI0yBKQIWpNLD0/1Bmkue0ksJ/Ct7MFlMUnx5qKOB/i0IgUU2ane4EoT+CW6AodQ/M3aPKUgXmG9f9hc7C/MBnrFcgSfq3hJhth0870ehLmCwJdtT9vI/c=,iv:C9xMA0IBiMPBsrd4JsnlmyPs2idWRbLcipQtyd/hZp4=,tag:kSXArxugagqe5+wJ2WEtjw==,type:str]
+    version: 3.13.3
