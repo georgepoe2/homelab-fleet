@@ -35,7 +35,9 @@ spec:
     - name: infra-storage
   interval: 10m
   retryInterval: 1m
-  timeout: 10m
+  # Healthy apps settle in well under a minute. 10m meant every broken pod held
+  # up the next commit for ten minutes while debugging (2026-10-19).
+  timeout: 3m
   path: ./apps
   prune: true
   wait: true
