@@ -1,0 +1,19 @@
+# NFS volumes on the Synology's `data` share.
+# subDir uses the PVC's namespace and name, so a PVC that gets recreated
+# (e.g. after a cluster rebuild) reuses the same directory and its data.
+# Retain: deleting a PVC never deletes data on the NAS.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-data
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 192.168.1.250
+  share: /volume1/data
+  subDir: k8s/${pvc.metadata.namespace}/${pvc.metadata.name}
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+mountOptions:
+  - nfsvers=4.1
+  - hard

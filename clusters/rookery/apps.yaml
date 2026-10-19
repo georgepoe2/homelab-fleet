@@ -9,6 +9,7 @@ metadata:
 spec:
   dependsOn:
     - name: infra-networking
+    - name: infra-storage
   interval: 10m
   retryInterval: 1m
   timeout: 5m
