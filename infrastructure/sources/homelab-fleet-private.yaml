@@ -1,0 +1,15 @@
+# status: needs-rewrite (Claude draft, 2026-10-19). Put comments in your own words before pushing.
+# A second, private Git repo that Flux also pulls. Read-only deploy key; the
+# key itself is in homelab-fleet-private-auth.sops.yaml (SOPS-encrypted).
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: homelab-fleet-private
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: ssh://git@github.com/georgepoe2/homelab-fleet-private
+  ref:
+    branch: main
+  secretRef:
+    name: homelab-fleet-private-auth
