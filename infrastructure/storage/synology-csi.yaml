@@ -1,0 +1,72 @@
+# status: needs-rewrite (Claude draft, 2026-10-19). Put comments in your own words before pushing.
+# Synology CSI driver: iSCSI LUNs on the NAS as block volumes, for app config
+# databases (SQLite is not safe on NFS).
+---
+# The node plugin runs as root, privileged, and calls iscsiadm on the host.
+# Only the driver's namespace gets this. Apps stay under restricted.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: synology-csi
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+---
+# The chart is only published inside the GitHub repo (deploy/helm), not in a
+# Helm repository, so Flux pulls it from Git, pinned to the release tag.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: synology-csi
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://github.com/SynologyOpenSource/synology-csi
+  ref:
+    tag: v1.4.0
+  ignore: |
+    /*
+    !/deploy/helm/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: synology-csi
+  namespace: flux-system
+spec:
+  interval: 30m
+  targetNamespace: synology-csi
+  releaseName: synology-csi
+  chart:
+    spec:
+      chart: ./deploy/helm
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: synology-csi
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    fullnameOverride: synology-csi
+    # DSM login lives in a SOPS-encrypted Secret (synology-csi-client-info.sops.yaml),
+    # not in chart values, so it never touches Git in plain text.
+    clientInfoSecret:
+      create: false
+      name: synology-csi-client-info
+    # Snapshots: the chart skips the snapshotter and VolumeSnapshotClass on its own
+    # while the snapshot CRDs are not installed.
+    storageClasses:
+      synology-iscsi-storage:
+        disabled: true
+      iscsi-config:
+        reclaimPolicy: Retain
+        volumeBindingMode: WaitForFirstConsumer
+        parameters:
+          dsm: nas.rookery.internal
+          location: /volume2
+          fsType: ext4
+          protocol: iscsi
