@@ -9,7 +9,7 @@ metadata:
 provisioner: nfs.csi.k8s.io
 parameters:
   server: 192.168.1.250
-  share: /volume1/data
+  share: /volume2/data
   subDir: k8s/${pvc.metadata.namespace}/${pvc.metadata.name}
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
